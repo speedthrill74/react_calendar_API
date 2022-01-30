@@ -50,6 +50,26 @@ class ReminderSchema(ma.Schema):
 reminder_schema = ReminderSchema()
 multiple_reminder_schema = ReminderSchema(many=True)
 
+@app.route("/month/add", methods=["POST"])
+def add_month():
+    post_data = request.get_json()
+    name = post_data["name"]
+    year = post_data["year"]
+    days_in_month = post_data["days_in_month"]
+    days_in_previous_month = post_data["days_in_previous_month"]
+    start_day = post_data["start_day"]
+    
+    record = Month(name, year, days_in_month, days_in_previous_month, start_day)
+    db.session.add(record)
+    db.session.commit()
+    
+    return jsonify("Month added")
+
+@app.route("/month/get", methods=["GET"])
+def get_all_months():
+    records = db.session.query(Month).all()
+    return jsonify(multiple_month_schema.dump(records))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
