@@ -65,9 +65,35 @@ def add_month():
     
     return jsonify("Month added")
 
+@app.route("/month/add/multiple", methods=["POST"])
+def add_multiple_Months():
+    post_data = request.get_json()
+    
+    for month_data in post_data:
+        record_check = db.session.query(Month).filter(Month.name == month_data["name"]).filter(Month.year == month_data["year"]).first()
+                       
+        if record_check is None:            
+            name = month_data["name"]
+            year = month_data["year"]
+            days_in_month = month_data["days_in_month"]
+            days_in_previous_month = month_data["days_in_previous_month"]
+            start_day = month_data["start_day"]
+    
+            record = Month(name, year, days_in_month, days_in_previous_month, start_day)
+            db.session.add(record)
+            db.session.commit()
+        
+    return jsonify("Months added")
+    
+
 @app.route("/month/get", methods=["GET"])
 def get_all_months():
     records = db.session.query(Month).all()
+    return jsonify(multiple_month_schema.dump(records))
+
+@app.route("/month/get/<year>", methods=["GET"])
+def get_months_by_year(year):
+    records = db.session.query(Month).filter(Month.year == year).all()
     return jsonify(multiple_month_schema.dump(records))
 
 
